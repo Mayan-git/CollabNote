@@ -13,7 +13,7 @@ ENV VITE_SOCKET_URL=${VITE_SOCKET_URL}
 COPY package.json package-lock.json ./
 COPY client/package.json ./client/package.json
 COPY server/package.json ./server/package.json
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY client ./client
 RUN npm run build --workspace=client
