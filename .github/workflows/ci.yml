@@ -61,6 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build server image
-        run: docker build -t collabnote-server ./server
+        run: docker build -f server/Dockerfile -t collabnote-server .
       - name: Build client image
-        run: docker build -t collabnote-client ./client --build-arg VITE_API_URL=http://localhost:5000/api/v1 --build-arg VITE_SOCKET_URL=http://localhost:5000
+        run: docker build -f client/Dockerfile -t collabnote-client . --build-arg VITE_API_URL=http://localhost:5000/api/v1 --build-arg VITE_SOCKET_URL=http://localhost:5000

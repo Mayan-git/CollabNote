@@ -1,8 +1,0 @@
-node_modules
-dist
-coverage
-.env
-.env.*
-logs
-uploads
-*.log
