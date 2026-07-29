@@ -84,6 +84,13 @@ export const noteRepository = {
     return NoteModel.findOne({ 'shareLink.token': token, 'shareLink.enabled': true });
   },
 
+  // Only for read-only public display — callers that compare `note.owner`
+  // against a raw user id (e.g. claimShareLink) must use findByShareToken
+  // instead, since a populated owner's `.toString()` is not the hex id.
+  findByShareTokenForDisplay(token: string) {
+    return NoteModel.findOne({ 'shareLink.token': token, 'shareLink.enabled': true }).populate('owner', 'name email avatarUrl');
+  },
+
   permanentlyDelete(id: string | Types.ObjectId) {
     return NoteModel.findByIdAndDelete(id);
   },

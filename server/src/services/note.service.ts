@@ -47,7 +47,7 @@ export const noteService = {
   },
 
   async getPublicByShareToken(token: string) {
-    const note = await noteRepository.findByShareToken(token);
+    const note = await noteRepository.findByShareTokenForDisplay(token);
     if (!note) throw ApiError.notFound('This share link is invalid or has expired');
     if (note.shareLink.expiresAt && note.shareLink.expiresAt < new Date()) {
       throw ApiError.forbidden('This share link has expired');
