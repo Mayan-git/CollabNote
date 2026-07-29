@@ -21,6 +21,8 @@ router.get('/shared/:token', optionalAuth, noteController.getPublicNote);
 
 router.use(requireAuth);
 
+router.post('/shared/:token/claim', noteController.claimShareLink);
+
 router.post('/', validate(createNoteSchema), noteController.createNote);
 router.get('/', validate(listNotesQuerySchema), noteController.listNotes);
 router.get('/:id', validate(idParamSchema), noteController.getNote);

@@ -55,6 +55,35 @@ export const noteService = {
     return note;
   },
 
+  /**
+   * Grants a logged-in visitor of a public share link real, persistent access
+   * to the note (added as a collaborator with the link's role), so it shows
+   * up in their dashboard and they can use the normal authenticated editor —
+   * without this, "log in to edit" from the public share page was a dead end.
+   */
+  async claimShareLink(token: string, userId: string) {
+    const note = await noteRepository.findByShareToken(token);
+    if (!note) throw ApiError.notFound('This share link is invalid or has expired');
+    if (note.shareLink.expiresAt && note.shareLink.expiresAt < new Date()) {
+      throw ApiError.forbidden('This share link has expired');
+    }
+
+    if (note.owner.toString() === userId) return note;
+
+    const alreadyCollaborator = note.collaborators.some((c) => c.user.toString() === userId);
+    if (!alreadyCollaborator) {
+      note.collaborators.push({
+        user: new Types.ObjectId(userId),
+        role: note.shareLink.role as CollaboratorRole,
+        addedAt: new Date(),
+      });
+      await note.save();
+      await activityService.log({ actor: userId, action: ActivityAction.COLLABORATOR_ADDED, targetNote: note._id, metadata: { via: 'share-link' } });
+    }
+
+    return note;
+  },
+
   async list(userId: string, query: PaginationQuery & NoteListFilter) {
     const { skip, limit, sort, page } = normalizePagination(query, 'updatedAt');
     const filter = noteRepository.buildListQuery({ ...query, userId });

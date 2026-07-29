@@ -1,5 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -8,14 +8,19 @@ import Highlight from '@tiptap/extension-highlight';
 import ImageExtension from '@tiptap/extension-image';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { NotebookPen, Lock } from 'lucide-react';
 import { LoadingScreen } from '@/components/common/LoadingScreen';
 import { noteService } from '@/services/note.service';
+import { useAuthStore } from '@/store/authStore';
 import { ROUTES } from '@/constants/routes';
 
 export default function SharedNotePage() {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user = useAuthStore((state) => state.user);
+  const claimedRef = useRef(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['shared-note', token],
@@ -23,6 +28,20 @@ export default function SharedNotePage() {
     enabled: Boolean(token),
     retry: false,
   });
+
+  const claim = useMutation({
+    mutationFn: () => noteService.claimShareLink(token as string),
+    onSuccess: (note) => navigate(ROUTES.NOTE(note._id), { replace: true }),
+  });
+
+  // If you're already logged in, a shared link should grant real, persistent
+  // access (like Google Docs) instead of dead-ending at a read-only preview.
+  useEffect(() => {
+    if (user && data?.note && !claimedRef.current) {
+      claimedRef.current = true;
+      claim.mutate();
+    }
+  }, [user, data, claim]);
 
   const editor = useEditor({
     extensions: [StarterKit, Underline, Link2, Highlight, ImageExtension, TaskList, TaskItem.configure({ nested: true })],
@@ -33,7 +52,7 @@ export default function SharedNotePage() {
     if (data?.note && editor) editor.commands.setContent(data.note.content as never);
   }, [data, editor]);
 
-  if (isLoading) return <LoadingScreen label="Loading shared note…" />;
+  if (isLoading || claim.isPending) return <LoadingScreen label={claim.isPending ? 'Adding note to your account…' : 'Loading shared note…'} />;
 
   if (isError || !data) {
     return (
@@ -54,9 +73,14 @@ export default function SharedNotePage() {
           <NotebookPen className="h-5 w-5 text-primary" />
           CollabNote
         </Link>
-        <Link to={ROUTES.LOGIN} className="text-sm font-medium text-primary hover:underline">
-          Log in to edit
-        </Link>
+        <div className="flex items-center gap-4 text-sm font-medium">
+          <Link to={ROUTES.LOGIN} state={{ from: location }} className="text-primary hover:underline">
+            Log in to edit
+          </Link>
+          <Link to={ROUTES.SIGNUP} state={{ from: location }} className="text-primary hover:underline">
+            Sign up
+          </Link>
+        </div>
       </header>
       <div className="mx-auto max-w-3xl px-8 py-10">
         <h1 className="mb-6 text-3xl font-bold">{data.note.title || 'Untitled'}</h1>

@@ -28,6 +28,11 @@ export const noteService = {
     return data.data;
   },
 
+  async claimShareLink(token: string) {
+    const { data } = await apiClient.post<ApiEnvelope<{ note: Note }>>(`/notes/shared/${token}/claim`);
+    return data.data.note;
+  },
+
   async create(input: { title?: string; workspace: string; folder?: string | null; tags?: string[] }) {
     const { data } = await apiClient.post<ApiEnvelope<{ note: Note }>>('/notes', input);
     return data.data.note;

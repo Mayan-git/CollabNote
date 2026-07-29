@@ -31,6 +31,11 @@ export const getPublicNote = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json(new ApiResponse(200, { note, role: note.shareLink.role }));
 });
 
+export const claimShareLink = asyncHandler(async (req: Request, res: Response) => {
+  const note = await noteService.claimShareLink(req.params.token, uid(req));
+  res.status(200).json(new ApiResponse(200, { note }, 'Note added to your account'));
+});
+
 export const updateNote = asyncHandler(async (req: Request, res: Response) => {
   const note = await noteService.update(req.params.id, uid(req), req.body);
   res.status(200).json(new ApiResponse(200, { note }, 'Note saved'));
