@@ -46,7 +46,8 @@ export const authService = {
 
     const verifyToken = signEmailToken({ sub: user._id.toString(), purpose: 'verify-email' });
     const verifyUrl = `${env.CLIENT_URL}/verify-email?token=${verifyToken}`;
-    await sendMail({
+    // Fire-and-forget: a slow/hanging SMTP connection must never delay the signup response.
+    void sendMail({
       to: user.email,
       subject: 'Verify your CollabNote account',
       html: verificationEmailTemplate(user.name, verifyUrl),
@@ -103,7 +104,7 @@ export const authService = {
 
     const resetToken = signEmailToken({ sub: user._id.toString(), purpose: 'reset-password' });
     const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}`;
-    await sendMail({
+    void sendMail({
       to: user.email,
       subject: 'Reset your CollabNote password',
       html: resetPasswordEmailTemplate(user.name, resetUrl),
@@ -150,7 +151,7 @@ export const authService = {
 
     const verifyToken = signEmailToken({ sub: user._id.toString(), purpose: 'verify-email' });
     const verifyUrl = `${env.CLIENT_URL}/verify-email?token=${verifyToken}`;
-    await sendMail({
+    void sendMail({
       to: user.email,
       subject: 'Verify your CollabNote account',
       html: verificationEmailTemplate(user.name, verifyUrl),

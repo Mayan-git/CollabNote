@@ -7,6 +7,12 @@ const transporter = nodemailer.createTransport({
   port: env.SMTP_PORT,
   secure: env.SMTP_PORT === 465,
   auth: env.SMTP_USER ? { user: env.SMTP_USER, pass: env.SMTP_PASS } : undefined,
+  // Some hosting providers throttle/blackhole outbound SMTP — fail fast rather
+  // than let a hung connection sit open (email sending is already fire-and-forget
+  // at the call site, but a tight timeout here keeps failures visible quickly).
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 15_000,
 });
 
 interface SendMailOptions {

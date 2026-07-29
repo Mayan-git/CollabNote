@@ -35,7 +35,7 @@ export const invitationService = {
     });
 
     const inviteUrl = `${env.CLIENT_URL}/invitations/${token}`;
-    await sendMail({
+    void sendMail({
       to: email,
       subject: `${inviter?.name ?? 'Someone'} invited you to collaborate on CollabNote`,
       html: inviteEmailTemplate(inviter?.name ?? 'A CollabNote user', note.title, inviteUrl),
