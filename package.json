@@ -12,7 +12,7 @@
     "build": "npm run build -w server && npm run build -w client",
     "lint": "npm run lint -w server && npm run lint -w client",
     "test": "npm run test -w server && npm run test -w client",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
