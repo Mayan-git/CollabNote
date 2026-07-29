@@ -3,7 +3,7 @@ services:
     name: collabnote-api
     runtime: node
     plan: free
-    buildCommand: npm ci --ignore-scripts && npm run build --workspace=server
+    buildCommand: npm ci --ignore-scripts --include=dev && npm run build --workspace=server
     startCommand: npm start --workspace=server
     healthCheckPath: /api/v1/health
     envVars:
