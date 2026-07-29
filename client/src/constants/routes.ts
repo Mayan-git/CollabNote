@@ -1,0 +1,18 @@
+export const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  VERIFY_EMAIL: '/verify-email',
+  DASHBOARD: '/dashboard',
+  NOTE: (id: string) => `/notes/${id}`,
+  SHARED_NOTE: (token: string) => `/shared/${token}`,
+  INVITATION: (token: string) => `/invitations/${token}`,
+  FAVORITES: '/favorites',
+  PINNED: '/pinned',
+  ARCHIVE: '/archive',
+  TRASH: '/trash',
+  SETTINGS: '/settings',
+  ADMIN: '/admin',
+} as const;
